@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/cors": "^2.8.7",
     "@types/jest": "^26.0.0",
-    "@types/node": "^14.0.13",
     "@types/react": "^16.9.36",
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
@@ -19,19 +19,18 @@
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.1",
+    "react-scripts": "^3.4.3",
     "redux": "^4.0.5",
     "tslint": "^5.20.0",
     "tslint-config-airbnb": "^5.11.2",
     "tslint-config-prettier": "^1.18.0",
     "tslint-lines-between-class-members": "^1.3.6",
     "tslint-react": "^4.1.0",
-    "tslint-react-hooks": "^2.2.1",
-    "typescript": "^3.9.5"
+    "tslint-react-hooks": "^2.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-server": "ts-node ./server/app",
+    "start-server": "node ./server/app.mjs",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -53,6 +52,8 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.6",
-    "ts-node": "^8.10.2"
+    "@types/node": "^14.6.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
   }
 }

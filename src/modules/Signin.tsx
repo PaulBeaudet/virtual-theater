@@ -8,6 +8,7 @@ const SignIn: React.FC = () => {
   useEffect(() => {
     Firebase.auth().onAuthStateChanged((user) => {
       if (user) {
+        console.log(JSON.stringify(user, null, 4))
         // TODO: Store user details
         history.push('/theater');
       }
@@ -18,19 +19,19 @@ const SignIn: React.FC = () => {
     Firebase.auth().signInWithPopup(provider);
   };
 
-  return ( 
-    <div 
+  return (
+    <div
       style={{
-        top : '20%',
-        left : '40%',
-        position : 'fixed',
-        textAlign : 'center'
+        top: '20%',
+        left: '40%',
+        position: 'fixed',
+        textAlign: 'center'
       }}
     >
       <h1> Remo Ludo </h1>
       <button onClick={redirect}> SignIn With Google </button>
-    </div> 
+    </div>
   );
 };
- 
+
 export default SignIn;
