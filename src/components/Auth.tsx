@@ -26,7 +26,7 @@ const Auth: React.FC = () => {
         history.push('/theater');
       }
     });
-  }, [history]);
+  }, [history, dispatch]);
   const redirect = () => {
     const provider = new Firebase.auth.GoogleAuthProvider();
     Firebase.auth().signInWithPopup(provider);

@@ -14,7 +14,7 @@ const Theater: React.FC = () => {
         {/**
           * Show user profile pic/name after login
           */}
-        <a href='javascript:;'>Logout</a>
+        {/* <a href='javascript:;'>Logout</a> */}
       </div>
       <div className='rt-rooms'>
         {/**

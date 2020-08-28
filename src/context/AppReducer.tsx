@@ -1,11 +1,8 @@
-import { userContextType } from "./GlobalState"
+import { reducerActionType, userContextType } from "../interfaces"
 
-interface actionType {
-  type: string
-  payload: any
-}
 
-export default (state: userContextType, action: actionType) => {
+
+export default (state: userContextType, action: reducerActionType) => {
   const reduceObj = {
     UPDATE_USER: {
       ...state,

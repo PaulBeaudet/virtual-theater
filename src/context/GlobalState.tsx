@@ -1,17 +1,9 @@
 import React, { createContext, useReducer } from 'react'
 import AppReducer from './AppReducer'
-
-interface userType {
-  display_name: string | null
-  photoUrl: string | null
-}
-
-export interface userContextType extends userType {
-  photoUrl: string
-}
+import { userContextType } from '../interfaces'
 
 // initial state
-const userState = {
+const userState: userContextType = {
   isLoggedIn: false,
   display_name: '',
   photoUrl: '',
