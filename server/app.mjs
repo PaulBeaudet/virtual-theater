@@ -21,11 +21,18 @@ app.get('/sample-get-request', (req, res) => {
 app.post('/sample-post-request', (req, res) => res.json(req.body));
 app.post('/new-participant', (req, res) => {
   const newParticipant = {
-    displayName: req.body.name,
+    displayName: req.body.displayName,
     photoURL: req.body.photoURL,
+    uid: req.body.uid,
+    email: req.body.email,
   };
-  participants = [...participants, newParticipant];
-  res.json({ status: "ok" });
+  const existing = participants.find((users) => { return users.uid === newParticipant.uid })
+  if (existing) {
+    res.json({ status: "user exist" });
+  } else {
+    participants = [...participants, newParticipant];
+    res.json({ status: "ok" });
+  }
   console.log(JSON.stringify(participants, null, 4))
 });
 
