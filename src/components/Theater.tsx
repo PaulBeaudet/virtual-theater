@@ -2,6 +2,7 @@ import React from 'react';
 import './Theater.scss';
 import MapImage from '../assets/conference-map.svg';
 import TableConfig from './tableConfig.json';
+import SignIn from 'modules/SignIn'
 import SignOut from 'modules/Logout';
 import User from 'modules/User';
 
@@ -10,8 +11,9 @@ const Theater: React.FC = () => {
   return (
     <div className='remo-theater' style={{ width: TableConfig.width, height: TableConfig.height }}>
       <div className='rt-app-bar'>
-        <User />
         <SignOut />
+        <SignIn />
+        <User />
       </div>
       <div className='rt-rooms'>
         {/**

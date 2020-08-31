@@ -1,19 +1,20 @@
 import { reducerActionType, userContextType } from "../interfaces"
 
 export default (state: userContextType, action: reducerActionType) => {
-  const reduceObj = {
-    SIGN_IN: {
+  if (action.type === "SIGN_IN") {
+    return {
       loggedIn: true,
       displayName: action.payload.displayName,
       photoURL: action.payload.photoURL,
       uid: action.payload.uid,
       email: action.payload.email,
-    },
-    SIGN_OUT: {
+    }
+  } else if (action.type === "SIGN_OUT") {
+    return {
       ...state,
-      loggedIn: false,
-    },
+      loggedIn: false
+    }
+  } else {
+    return state;
   }
-  return reduceObj[action.type] ? reduceObj[action.type] : state
-  // turnery for default return case, because switches are long winded and error prone
 }

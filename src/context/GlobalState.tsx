@@ -3,7 +3,7 @@ import AppReducer from './AppReducer'
 import { userContextType } from '../interfaces'
 
 // initial state
-const userState: userContextType = {
+export const userState: userContextType = {
   loggedIn: false,
   displayName: '',
   photoURL: '',
