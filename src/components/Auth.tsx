@@ -3,6 +3,7 @@ import Firebase from '../services/firebase';
 import { useHistory } from 'react-router-dom';
 import { sendPostRequest } from '../apis';
 import { GlobalUserContext } from '../context/GlobalState';
+import { userType } from 'interfaces';
 
 const Auth: React.FC = () => {
   const history = useHistory();
@@ -11,18 +12,19 @@ const Auth: React.FC = () => {
     Firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         console.log(JSON.stringify(user, null, 4))
-        sendPostRequest(`new-participant`, {
-          name: user.displayName,
-          photoUrl: user.photoURL,
-        }).then(response => {
-          dispatch({
-            type: 'UPDATE_USER',
-            payload: {
-              display_name: user.displayName,
-              photoUrl: user.photoURL,
-            }
-          })
-        });
+        const addUserData: userType = {
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          uid: user.uid,
+          email: user.email,
+        }
+        sendPostRequest(`new-participant`, addUserData)
+          .then(response => {
+            dispatch({
+              type: 'SIGN_IN',
+              payload: addUserData
+            })
+          });
         history.push('/theater');
       }
     });

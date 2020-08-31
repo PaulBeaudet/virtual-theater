@@ -4,9 +4,11 @@ import { userContextType } from '../interfaces'
 
 // initial state
 const userState: userContextType = {
-  isLoggedIn: false,
-  display_name: '',
-  photoUrl: '',
+  loggedIn: false,
+  displayName: '',
+  photoURL: '',
+  uid: '',
+  email: '',
 };
 
 interface props {

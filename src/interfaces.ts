@@ -4,10 +4,12 @@ export interface reducerActionType {
 }
 
 export interface userType {
-  display_name: string | null
-  photoUrl: string | null
+  displayName: string | null
+  photoURL: string | null
+  uid: string | null
+  email: string | null
 }
 
 export interface userContextType extends userType {
-  isLoggedIn: boolean
+  loggedIn: boolean
 }

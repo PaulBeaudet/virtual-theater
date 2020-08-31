@@ -21,7 +21,7 @@ app.get('/sample-get-request', (req, res) => {
 app.post('/sample-post-request', (req, res) => res.json(req.body));
 app.post('/new-participant', (req, res) => {
   const newParticipant = {
-    name: req.body.name,
+    displayName: req.body.name,
     photoURL: req.body.photoURL,
   };
   participants = [...participants, newParticipant];

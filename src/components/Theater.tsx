@@ -7,7 +7,7 @@ import { GlobalUserContext } from '../context/GlobalState'
 const Theater: React.FC = () => {
   const firstTable = TableConfig.tables[0];
   const { state } = useContext(GlobalUserContext);
-  console.log(state.display_name);
+  console.log(state);
   return (
     <div className='remo-theater' style={{ width: TableConfig.width, height: TableConfig.height }}>
       <div className='rt-app-bar'>
