@@ -33,7 +33,7 @@ app.post('/new-participant', (req, res) => {
   console.log(JSON.stringify(participants, null, 4))
 });
 app.post('/logout-participant', (req, res) => {
-  participants = participants.filter((users) => { return users.uid === req.body.uid })
+  participants = participants.filter((users) => { return users.uid !== req.body.uid })
   console.log(JSON.stringify(participants, null, 4))
 })
 

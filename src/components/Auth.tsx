@@ -25,6 +25,7 @@ const Auth: React.FC = () => {
         sendPostRequest(`new-participant`, addUserData)
           .then(response => {
             history.push('/theater');
+            console.log(JSON.stringify(response, null, 4));
           });
       }
     });
