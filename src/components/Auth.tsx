@@ -18,14 +18,14 @@ const Auth: React.FC = () => {
           uid: user.uid,
           email: user.email,
         }
+        dispatch({
+          type: 'SIGN_IN',
+          payload: addUserData
+        })
         sendPostRequest(`new-participant`, addUserData)
           .then(response => {
-            dispatch({
-              type: 'SIGN_IN',
-              payload: addUserData
-            })
+            history.push('/theater');
           });
-        history.push('/theater');
       }
     });
   }, [history, dispatch]);

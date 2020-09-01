@@ -1,18 +1,24 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './Theater.scss';
 import MapImage from '../assets/conference-map.svg';
 import TableConfig from './tableConfig.json';
-import SignIn from 'modules/SignIn'
 import SignOut from 'modules/Logout';
 import User from 'modules/User';
+import { GlobalUserContext } from 'context/GlobalState';
+import { useHistory } from 'react-router-dom';
 
 const Theater: React.FC = () => {
+  const { state } = useContext(GlobalUserContext);
+  const history = useHistory();
   const firstTable = TableConfig.tables[0];
+  if (!state.loggedIn) {
+    history.push('/');
+    return null;
+  }
   return (
     <div className='remo-theater' style={{ width: TableConfig.width, height: TableConfig.height }}>
       <div className='rt-app-bar'>
         <SignOut />
-        <SignIn />
         <User />
       </div>
       <div className='rt-rooms'>
