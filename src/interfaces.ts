@@ -10,10 +10,11 @@ export interface userType {
   email: string | null
 }
 
-export interface userContextType extends userType {
-  loggedIn: boolean
+export interface GlobalContextType {
+  // loggedIn: boolean // maybe refactor this to be an instance of a user
+  participants: { displayName: string; photoURL: string; }[][]
+  loggedIn: userType | null
 }
-
 
 interface xy {
   x: number
@@ -28,4 +29,11 @@ export interface tableProps {
     id: string
     seats: xy[]
   }
+  tableNumber: number
+}
+
+export interface seatProps {
+  seatObj: xy
+  tableNumber: number
+  seatNumber: number
 }

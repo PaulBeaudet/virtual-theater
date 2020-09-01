@@ -1,18 +1,25 @@
-import { reducerActionType, userContextType } from "../interfaces"
+import { reducerActionType, GlobalContextType } from "../interfaces"
 
-export default (state: userContextType, action: reducerActionType) => {
+export default (state: GlobalContextType, action: reducerActionType) => {
   if (action.type === "SIGN_IN") {
     return {
-      loggedIn: true,
-      displayName: action.payload.displayName,
-      photoURL: action.payload.photoURL,
-      uid: action.payload.uid,
-      email: action.payload.email,
+      ...state,
+      loggedIn: {
+        displayName: action.payload.displayName,
+        photoURL: action.payload.photoURL,
+        uid: action.payload.uid,
+        email: action.payload.email,
+      }
     }
   } else if (action.type === "SIGN_OUT") {
     return {
       ...state,
-      loggedIn: false
+      loggedIn: null
+    }
+  } else if (action.type === "LOAD_PARTICIPANTS") {
+    return {
+      ...state,
+      participants: action.payload.participants,
     }
   } else {
     return state;

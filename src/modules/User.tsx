@@ -5,16 +5,22 @@ import { GlobalUserContext } from 'context/GlobalState'
 export default function User() {
   const { state } = useContext(GlobalUserContext);
   const picSize: number = 70
-  if (!state.loggedIn) { return null }
+  if (state.loggedIn === null) { return null }
   return (
     <div style={{
-      top: '2%',
-      left: '1290px',
-      position: 'fixed',
+      width: '300px',
+      height: '300px',
+      top: '300px',
+      left: '1610px',
+      position: 'absolute',
       textAlign: 'center'
     }}>
-      <h1>{state.displayName}</h1>
-      <img src={state.photoURL} alt={` ${state.displayName}`} width={picSize} height={picSize} />
+      <h1>{state.loggedIn.displayName}</h1>
+      <img
+        src={state.loggedIn.photoURL}
+        alt={` ${state.loggedIn.displayName}`}
+        width={picSize}
+        height={picSize} />
     </div>
   )
 }

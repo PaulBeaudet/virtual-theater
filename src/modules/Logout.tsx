@@ -22,14 +22,17 @@ const SignOut: React.FC = () => {
     });
   }
 
-  if (!state.loggedIn) { return null } // hide component when logged out
+  if (state.loggedIn === null) { return null } // hide component when logged out
   return (
     <div style={{
-      top: '2%',
-      left: '470px',
-      position: 'fixed',
+      width: '300px',
+      height: '300px',
+      top: '300px',
+      left: '772px',
+      position: 'absolute',
       textAlign: 'center'
-    }}>
+    }}
+    >
       <h1> Remo Ludo </h1>
       <button onClick={logoutFunc}>
         Logout

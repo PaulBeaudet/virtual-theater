@@ -31,7 +31,7 @@ const Theater: React.FC = () => {
       }
     })
   }, [history, dispatch])
-  if (!state.loggedIn) { return null; }
+  if (state.loggedIn === null) { return null; }
   return (
     <div className='remo-theater' style={{ width: TableConfig.width, height: TableConfig.height }}>
       <div className='rt-app-bar'>
@@ -39,8 +39,9 @@ const Theater: React.FC = () => {
         <User />
       </div>
       <div className='rt-rooms'>
-        {TableConfig.tables.map((tableObj) => {
-          return (<Table key={tableObj.id} tableObj={tableObj} />)
+
+        {TableConfig.tables.map((tableObj, tableIndex) => {
+          return (<Table key={tableObj.id} tableObj={tableObj} tableNumber={tableIndex} />)
         })}
       </div>
       <div className='rt-background'>
