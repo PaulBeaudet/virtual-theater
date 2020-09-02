@@ -11,8 +11,7 @@ export interface userType {
 }
 
 export interface GlobalContextType {
-  // loggedIn: boolean // maybe refactor this to be an instance of a user
-  participants: { displayName: string; photoURL: string; }[][]
+  participants: userType[][]
   loggedIn: userType | null
 }
 

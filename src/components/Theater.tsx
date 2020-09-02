@@ -5,32 +5,20 @@ import TableConfig from './tableConfig.json';
 import SignOut from 'modules/Logout';
 import User from 'modules/User';
 import { GlobalUserContext } from 'context/GlobalState';
-import { useHistory } from 'react-router-dom';
-import Firebase from '../services/firebase'
-import { userType } from '../interfaces'
 import Table from './table';
+import { sendGetRequest } from 'apis';
 
 const Theater: React.FC = () => {
   const { state, dispatch } = useContext(GlobalUserContext);
-  const history = useHistory();
   useEffect(() => {
-    Firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        const addUserData: userType = {
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          uid: user.uid,
-          email: user.email,
-        }
+    sendGetRequest(`load-room`)
+      .then(room => {
         dispatch({
-          type: 'SIGN_IN',
-          payload: addUserData
+          type: 'LOAD_ROOM',
+          payload: room,
         })
-      } else {
-        history.push('/');
-      }
-    })
-  }, [history, dispatch])
+      })
+  }, [dispatch])
   if (state.loggedIn === null) { return null; }
   return (
     <div className='remo-theater' style={{ width: TableConfig.width, height: TableConfig.height }}>

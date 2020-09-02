@@ -16,10 +16,10 @@ export default (state: GlobalContextType, action: reducerActionType) => {
       ...state,
       loggedIn: null
     }
-  } else if (action.type === "LOAD_PARTICIPANTS") {
+  } else if (action.type === "LOAD_ROOM") {
     return {
       ...state,
-      participants: action.payload.participants,
+      participants: action.payload,
     }
   } else {
     return state;

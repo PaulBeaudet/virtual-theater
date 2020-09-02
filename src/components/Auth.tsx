@@ -11,7 +11,6 @@ const Auth: React.FC = () => {
   useEffect(() => {
     Firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        console.log(JSON.stringify(user, null, 4))
         const addUserData: userType = {
           displayName: user.displayName,
           photoURL: user.photoURL,
@@ -25,8 +24,9 @@ const Auth: React.FC = () => {
         sendPostRequest(`new-participant`, addUserData)
           .then(response => {
             history.push('/theater');
-            console.log(JSON.stringify(response, null, 4));
           });
+      } else {
+        history.push('/')
       }
     });
   }, [history, dispatch]);

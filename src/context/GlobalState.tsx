@@ -4,22 +4,21 @@ import { GlobalContextType } from '../interfaces'
 import TableConfig from '../components/tableConfig.json'
 
 // initial state
+const defaultUser = {
+  displayName: '',
+  photoURL: '',
+  uid: '',
+  email: '',
+}
+
 const roomLayout = TableConfig.tables.map((table) => {
   return table.seats.map(() => {
-    return {
-      displayName: '',
-      photoURL: '',
-    }
+    return defaultUser;
   })
 })
 
 export const userState: GlobalContextType = {
-  loggedIn: {
-    displayName: '',
-    photoURL: '',
-    uid: '',
-    email: '',
-  },
+  loggedIn: defaultUser,
   participants: roomLayout,
 };
 
