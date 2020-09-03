@@ -13,9 +13,10 @@ const SignOut: React.FC = () => {
       .then(() => {
         history.push('/');
       })
-    sendPostRequest('logout-participant', { uid: state.uid }).then(() => {
-      console.log('Logged out server side')
-    })
+    sendPostRequest('logout-participant', { ...state.loggedIn })
+      .then(() => {
+        console.log('Logged out server side')
+      })
     dispatch({
       type: 'SIGN_OUT',
       payload: userState,

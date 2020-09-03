@@ -21,6 +21,14 @@ export default (state: GlobalContextType, action: reducerActionType) => {
       ...state,
       participants: action.payload,
     }
+  } else if (action.type === "ADD_USER") {
+    const { seat, table, user } = action.payload
+    const newParticipants = [...state.participants]
+    newParticipants[table][seat] = user
+    return {
+      ...state,
+      participants: newParticipants,
+    }
   } else {
     return state;
   }

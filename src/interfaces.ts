@@ -36,3 +36,14 @@ export interface seatProps {
   tableNumber: number
   seatNumber: number
 }
+
+export interface wsType {
+  instance: any | null
+  server: string
+  init: any
+  handlers: any
+  on: any
+  incoming: any
+  send: any
+  msg: any
+}
