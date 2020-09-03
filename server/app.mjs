@@ -119,39 +119,89 @@ const roomLayout = [];
 for (let table = 0; table < TABLES; table++) {
   roomLayout[table] = [];
   for (let seat = 0; seat < SEATS; seat++) {
-    roomLayout[table][seat] = emptySeat;
+    roomLayout[table][seat] = { ...emptySeat }
   }
 }
 
-const findFreeSpot = (newParticipant) => {
-  let spot = {}
-  let userAdded = false
-  for (let table = 0; table < TABLES; table++) {
-    if (userAdded) { break }
-    for (let seat = 0; seat < SEATS; seat++) {
-      if (roomLayout[table][seat].uid) {
-        if (roomLayout[table][seat].uid === newParticipant.uid) {
-          spot = {
-            table,
-            seat,
-          }
-          userAdded = true
-          break
-        }
-        console(`seat: ${seat} at table: ${table} has been taken`);
-      } else {
-        roomLayout[table][seat] = newParticipant
-        spot = {
-          table,
-          seat,
-        }
-        userAdded = true
-        break
+var complexity = 0
+
+const checkForEmpty = (tableNumber) => {
+  if (tableNumber > -1) {
+    for (let i in roomLayout[tableNumber]) {
+      complexity++
+      if (roomLayout[tableNumber][i].uid === '') {
+        return Number(i)
       }
     }
   }
-  return spot
+  return -1
 }
+
+const tableWithAmount = (counts, amount) => {
+  for (let i = 0; i < roomLayout.length; i++) {
+    complexity++
+    if (counts[i] === amount || counts[i] === 0) {
+      return Number(i)
+    }
+  }
+  return -1
+}
+
+const findSomeone = () => {
+  const spot = {
+    table: -1,
+    seat: -1,
+  }
+  const tableCounts = []
+  for (let table = 0; table < roomLayout.length; table++) {
+    complexity++
+    let peeps = 0
+    for (let seat in roomLayout[table]) {
+      complexity++
+      if (roomLayout[table][seat].uid !== '') {
+        peeps++
+      }
+    }
+    tableCounts.push(peeps)
+  }
+  for (let i = 1; i < roomLayout.length; i++) {
+    complexity++
+    spot.table = tableWithAmount(tableCounts, i)
+    spot.seat = checkForEmpty(spot.table)
+    if (spot.seat > -1) { return spot }
+  }
+  return spot // no seats left case
+}
+
+// const findFreeSpot = (newParticipant) => {
+//   let spot = {}
+//   let userAdded = false
+//   for (let table = 0; table < TABLES; table++) {
+//     if (userAdded) { break }
+//     for (let seat = 0; seat < SEATS; seat++) {
+//       if (roomLayout[table][seat].uid) {
+//         if (roomLayout[table][seat].uid === newParticipant.uid) {
+//           spot = {
+//             table,
+//             seat,
+//           }
+//           userAdded = true
+//           break
+//         }
+//         console(`seat: ${seat} at table: ${table} has been taken`);
+//       } else {
+//         roomLayout[table][seat] = newParticipant
+//         spot = {
+//           table,
+//           seat,
+//         }
+//         userAdded = true
+//         break
+//       }
+//     }
+//   }
+//   return spot
+// }
 
 socket.on('new-user', (user, resFunc) => {
   resFunc({
@@ -164,7 +214,8 @@ socket.on('new-user', (user, resFunc) => {
     uid: user.uid,
     email: user.email,
   }
-  const spot = findFreeSpot(newParticipant)
+  const spot = findSomeone(newParticipant)
+  roomLayout[spot.table][spot.seat] = newParticipant
   socket.broadcast({
     action: 'new_user',
     user: newParticipant,
@@ -190,3 +241,20 @@ const web_server = app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 socket.init(web_server)
+
+
+// const addUser = () => {
+//   const newEntry = { ...emptySeat }
+//   newEntry.uid = socket.createOid()
+//   const spot = findSomeone(newEntry)
+//   console.log(spot)
+//   if (spot.table === -1 || spot.seat === -1) {
+//     console.log('out of room!')
+//     process.exit(0)
+//   }
+//   roomLayout[spot.table][spot.seat] = newEntry
+//   console.log(complexity)
+//   setTimeout(addUser, 100)
+// }
+
+// addUser()
