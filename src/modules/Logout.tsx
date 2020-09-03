@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import Firebase from '../services/firebase';
 import { GlobalUserContext, userState } from 'context/GlobalState';
-import { sendPostRequest } from '../apis';
+import { ws } from '../apis';
 import { useHistory } from 'react-router-dom';
 
 const SignOut: React.FC = () => {
@@ -13,10 +13,7 @@ const SignOut: React.FC = () => {
       .then(() => {
         history.push('/');
       })
-    sendPostRequest('logout-participant', { ...state.loggedIn })
-      .then(() => {
-        console.log('Logged out server side')
-      })
+    ws.msg('logout', { uid: state.loggedIn.uid })
     dispatch({
       type: 'SIGN_OUT',
       payload: userState,

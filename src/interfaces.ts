@@ -11,8 +11,8 @@ export interface userType {
 }
 
 export interface GlobalContextType {
+  loggedIn: userType
   participants: userType[][]
-  loggedIn: userType | null
 }
 
 interface xy {

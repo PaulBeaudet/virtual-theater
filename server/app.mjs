@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const socket = {
   server: null,
   connections: [],
-  createOid: function () {
+  createOid: () => {
     const increment = Math.floor(Math.random() * (16777216)).toString(16)
     const pid = Math.floor(Math.random() * (65536)).toString(16)
     const machine = Math.floor(Math.random() * (16777216)).toString(16)
@@ -25,53 +25,65 @@ const socket = {
       machine + '0000'.substr(0, 4 - pid.length) +
       pid + '000000'.substr(0, 6 - increment.length) + increment;
   },
-  init: function (server) {
+  init: (server) => {
     socket.server = new WebSocket.Server({
-      server: server,
+      server,
       autoAcceptConnections: false
     })
-    socket.server.on('connection', function connection(ws) {
-      const connectionId = socket.createOid()
+    socket.server.on('connection', (ws) => {
+      const oid = socket.createOid()
       const sendFunc = socket.send(ws)
-      socket.connections.push({ connectionId: connectionId, sendFunc: sendFunc })
-      ws.on('message', function incoming(message) {
-        socket.incoming(message)
-      });
-      ws.on('disconnect', () => {
-        console.log('someone disconnected')
+      socket.connections.push({
+        oid,
+        sendFunc,
       })
-    });
+      ws.on('message', (message) => {
+        socket.incoming(message, sendFunc, oid)
+      })
+    })
   },
-  send: function (ws) {
-    return function (msgObj) {
+  send: (ws) => {
+    return (msgObj) => {
       let msg = ''
-      try { msg = JSON.stringify(msgObj); } catch (err) { console.log(err); }
+      try {
+        msg = JSON.stringify(msgObj)
+      } catch (err) {
+        console.log(err)
+      }
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(msg)
         return true
-      } else { return false }
-    };
+      } else {
+        return false
+      }
+    }
   },
-  sendTo: function (oid, msgObj) {
+  sendTo: (oid, msgObj) => {
     let msg = ''
-    try { msg = JSON.stringify(msgObj) } catch (err) { console.log(err) }
-    console.log('response from server ' + msg)
-    for (var i = 0; i < socket.connections.length; i++) {
-      if (socket.connections[i].connectionId === oid) {
-        if (socket.connections[i].sendFunc(msgObj)) { return true }
-        else { return false }
+    try {
+      msg = JSON.stringify(msgObj)
+    } catch (err) {
+      console.log(err)
+    }
+    for (let i = 0; i < socket.connections.length; i++) {
+      if (socket.connections[i].oid === oid) {
+        if (socket.connections[i].sendFunc(msg)) {
+          return true
+        } else {
+          return false
+        }
       }
     }
     return false
   },
-  on: function (action, func) {
+  on: (action, func) => {
     socket.handlers.push({ action: action, func: func })
   },
   handlers: [{
     action: 'msg',
     func: function (req) { console.log(req.msg) }
   }],
-  incoming: function (event) {
+  incoming: (event, sendFunc) => {
     let req = { action: null }
     // if error we don't care there is a default object
     try {
@@ -81,11 +93,18 @@ const socket = {
     }
     for (let h = 0; h < socket.handlers.length; h++) {
       if (req.action === socket.handlers[h].action) {
-        socket.handlers[h].func(req)
+        socket.handlers[h].func(req, sendFunc)
         return
       }
     }
     console.log('no handler ' + event);
+  },
+  broadcast: (jsonMsg, exception) => {
+    socket.connections.forEach((user) => {
+      if (user.oid !== exception) {
+        user.sendFunc(jsonMsg)
+      }
+    })
   }
 }
 
@@ -96,7 +115,7 @@ const emptySeat = {
   email: '',
 }
 
-let roomLayout = [];
+const roomLayout = [];
 for (let table = 0; table < TABLES; table++) {
   roomLayout[table] = [];
   for (let seat = 0; seat < SEATS; seat++) {
@@ -105,7 +124,6 @@ for (let table = 0; table < TABLES; table++) {
 }
 
 const findFreeSpot = (newParticipant) => {
-  const newLayout = [...roomLayout]
   let spot = {}
   let userAdded = false
   for (let table = 0; table < TABLES; table++) {
@@ -122,7 +140,7 @@ const findFreeSpot = (newParticipant) => {
         }
         console(`seat: ${seat} at table: ${table} has been taken`);
       } else {
-        newLayout[table][seat] = { ...newParticipant }
+        roomLayout[table][seat] = newParticipant
         spot = {
           table,
           seat,
@@ -132,47 +150,40 @@ const findFreeSpot = (newParticipant) => {
       }
     }
   }
-  roomLayout = [...newLayout]
   return spot
 }
 
-app.get('/', (req, res) => res.send('Hello World!'));
-app.get('/sample-get-request', (req, res) => {
-  res.json(req.query);
-});
-app.post('/sample-post-request', (req, res) => res.json(req.body));
-app.post('/new-participant', (req, res) => {
+socket.on('new-user', (user, resFunc) => {
+  resFunc({
+    action: 'load_room',
+    roomLayout: roomLayout
+  })
   const newParticipant = {
-    displayName: req.body.displayName,
-    photoURL: req.body.photoURL,
-    uid: req.body.uid,
-    email: req.body.email,
+    displayName: user.displayName,
+    photoURL: user.photoURL,
+    uid: user.uid,
+    email: user.email,
   }
   const spot = findFreeSpot(newParticipant)
-  socket.connections.forEach((user) => {
-    setTimeout(() => {
-      user.sendFunc({
-        action: 'new_user',
-        user: { ...newParticipant },
-        ...spot,
-      })
-    }, 300)
+  socket.broadcast({
+    action: 'new_user',
+    user: newParticipant,
+    ...spot
   })
-  res.json({ status: "ok" });
-});
-app.post('/logout-participant', (req, res) => {
-  const { uid } = req.body
-  roomLayout = roomLayout.forEach((tables, tIdx) => {
+})
+
+socket.on('logout', ({ uid }, sendFunc, oid) => {
+  roomLayout.forEach((tables, tIdx) => {
     tables.forEach((seat, sIdx) => {
       if (seat.uid === uid) {
         roomLayout[tIdx][sIdx] = emptySeat;
-        // TODO: broadcast empty seat to other users
+        socket.broadcast({
+          action: 'remove_user',
+          uid,
+        }, oid)
       }
     })
   })
-});
-app.get('/load-room', (req, res) => {
-  res.json(roomLayout);
 })
 
 const web_server = app.listen(port, () => {

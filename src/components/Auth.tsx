@@ -1,9 +1,7 @@
 import React, { useEffect, useContext } from 'react';
 import Firebase from '../services/firebase';
 import { useHistory } from 'react-router-dom';
-import { sendPostRequest } from '../apis';
 import { GlobalUserContext } from '../context/GlobalState';
-import { userType } from 'interfaces';
 
 const Auth: React.FC = () => {
   const history = useHistory();
@@ -11,20 +9,7 @@ const Auth: React.FC = () => {
   useEffect(() => {
     Firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        const addUserData: userType = {
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          uid: user.uid,
-          email: user.email,
-        }
-        dispatch({
-          type: 'SIGN_IN',
-          payload: addUserData
-        })
-        sendPostRequest(`new-participant`, addUserData)
-          .then(response => {
-            history.push('/theater');
-          });
+        history.push('/theater')
       } else {
         history.push('/')
       }

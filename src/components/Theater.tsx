@@ -6,7 +6,7 @@ import SignOut from 'modules/Logout'
 import User from 'modules/User'
 import { GlobalUserContext } from 'context/GlobalState'
 import Table from './table'
-import { ws, sendPostRequest } from 'apis'
+import { ws } from 'apis'
 import Firebase from '../services/firebase'
 import { useHistory } from 'react-router-dom'
 import { userType } from 'interfaces'
@@ -18,6 +18,18 @@ const Theater: React.FC = () => {
     ws.on('new_user', (req: any) => {
       dispatch({
         type: 'ADD_USER',
+        payload: req,
+      })
+    })
+    ws.on('load_room', (req: any) => {
+      dispatch({
+        type: 'LOAD_ROOM',
+        payload: req.roomLayout,
+      })
+    })
+    ws.on('remove_user', (req: any) => {
+      dispatch({
+        type: 'REMOVE_USER',
         payload: req,
       })
     })
@@ -34,8 +46,7 @@ const Theater: React.FC = () => {
             type: 'SIGN_IN',
             payload: addUserData
           })
-          sendPostRequest(`new-participant`, addUserData)
-            .then(response => { });
+          ws.msg(`new-user`, addUserData)
         } else {
           history.push('/')
         }
