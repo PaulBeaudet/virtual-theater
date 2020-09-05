@@ -138,13 +138,17 @@ const checkForEmpty = (tableNumber) => {
 }
 
 const tableWithAmount = (counts, amount) => {
+  let table = -1
   for (let i = 0; i < roomLayout.length; i++) {
     complexity++
-    if (counts[i] === amount || counts[i] === 0) {
-      return Number(i)
+    if (table === -1 && counts[i] === 0) {
+      table = Number(i)
+    } else if (counts[i] === amount) {
+      table = Number(i)
+      break
     }
   }
-  return -1
+  return table
 }
 
 const findSomeone = () => {
@@ -173,36 +177,6 @@ const findSomeone = () => {
   return spot // no seats left case
 }
 
-// const findFreeSpot = (newParticipant) => {
-//   let spot = {}
-//   let userAdded = false
-//   for (let table = 0; table < TABLES; table++) {
-//     if (userAdded) { break }
-//     for (let seat = 0; seat < SEATS; seat++) {
-//       if (roomLayout[table][seat].uid) {
-//         if (roomLayout[table][seat].uid === newParticipant.uid) {
-//           spot = {
-//             table,
-//             seat,
-//           }
-//           userAdded = true
-//           break
-//         }
-//         console(`seat: ${seat} at table: ${table} has been taken`);
-//       } else {
-//         roomLayout[table][seat] = newParticipant
-//         spot = {
-//           table,
-//           seat,
-//         }
-//         userAdded = true
-//         break
-//       }
-//     }
-//   }
-//   return spot
-// }
-
 socket.on('new-user', (user, resFunc) => {
   resFunc({
     action: 'load_room',
@@ -215,6 +189,7 @@ socket.on('new-user', (user, resFunc) => {
     email: user.email,
   }
   const spot = findSomeone(newParticipant)
+  console.log(`Ran findSomeone with complexity of: ${complexity}`)
   roomLayout[spot.table][spot.seat] = newParticipant
   socket.broadcast({
     action: 'new_user',
