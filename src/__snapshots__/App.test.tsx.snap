@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`app snapshot test 1`] = `
+<div
+  style={
+    Object {
+      "alignItems": "center",
+      "display": "flex",
+      "flexDirection": "column",
+      "height": "100vh",
+      "justifyContent": "center",
+    }
+  }
+>
+  <h1>
+     Remo Coding Challenge Join Room 
+  </h1>
+  <button
+    onClick={[Function]}
+  >
+     Login With Google 
+  </button>
+</div>
+`;

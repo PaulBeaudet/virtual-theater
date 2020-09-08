@@ -1,121 +1,28 @@
 import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import WebSocket from 'ws'
+import path from 'path'
+import socket from './socket.mjs'
 
 const app = express();
 const port = 8000;
 const TABLES = 19;
 const SEATS = 6;
+const moduleURL = new URL(import.meta.url)
+const __dirname = path.dirname(moduleURL.pathname)
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const socket = {
-  server: null,
-  connections: [],
-  createOid: () => {
-    const increment = Math.floor(Math.random() * (16777216)).toString(16)
-    const pid = Math.floor(Math.random() * (65536)).toString(16)
-    const machine = Math.floor(Math.random() * (16777216)).toString(16)
-    const timestamp = Math.floor(new Date().valueOf() / 1000).toString(16)
-    return '00000000'.substr(0, 8 - timestamp.length) +
-      timestamp + '000000'.substr(0, 6 - machine.length) +
-      machine + '0000'.substr(0, 4 - pid.length) +
-      pid + '000000'.substr(0, 6 - increment.length) + increment;
-  },
-  init: (server) => {
-    socket.server = new WebSocket.Server({
-      server,
-      autoAcceptConnections: false
-    })
-    socket.server.on('connection', (ws) => {
-      const oid = socket.createOid()
-      const sendFunc = socket.send(ws)
-      socket.connections.push({
-        oid,
-        sendFunc,
-      })
-      ws.on('message', (message) => {
-        socket.incoming(message, sendFunc, oid)
-      })
-    })
-  },
-  send: (ws) => {
-    return (msgObj) => {
-      let msg = ''
-      try {
-        msg = JSON.stringify(msgObj)
-      } catch (err) {
-        console.log(err)
-      }
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(msg)
-        return true
-      } else {
-        return false
-      }
-    }
-  },
-  sendTo: (oid, msgObj) => {
-    let msg = ''
-    try {
-      msg = JSON.stringify(msgObj)
-    } catch (err) {
-      console.log(err)
-    }
-    for (let i = 0; i < socket.connections.length; i++) {
-      if (socket.connections[i].oid === oid) {
-        if (socket.connections[i].sendFunc(msg)) {
-          return true
-        } else {
-          return false
-        }
-      }
-    }
-    return false
-  },
-  on: (action, func) => {
-    socket.handlers.push({ action: action, func: func })
-  },
-  handlers: [{
-    action: 'msg',
-    func: function (req) { console.log(req.msg) }
-  }],
-  incoming: (event, sendFunc) => {
-    let req = { action: null }
-    // if error we don't care there is a default object
-    try {
-      req = JSON.parse(event)
-    } catch (error) {
-      console.log(error)
-    }
-    for (let h = 0; h < socket.handlers.length; h++) {
-      if (req.action === socket.handlers[h].action) {
-        socket.handlers[h].func(req, sendFunc)
-        return
-      }
-    }
-    console.log('no handler ' + event);
-  },
-  broadcast: (jsonMsg, exception) => {
-    socket.connections.forEach((user) => {
-      if (user.oid !== exception) {
-        user.sendFunc(jsonMsg)
-      }
-    })
-  }
-}
-
-const emptySeat = {
+export const emptySeat = {
   displayName: '',
   photoURL: '',
   uid: '',
   email: '',
 }
 
-const roomLayout = [];
+export const roomLayout = [];
 for (let table = 0; table < TABLES; table++) {
   roomLayout[table] = [];
   for (let seat = 0; seat < SEATS; seat++) {
@@ -151,7 +58,7 @@ const tableWithAmount = (counts, amount) => {
   return table
 }
 
-const findSomeone = () => {
+export const findSomeone = () => {
   const spot = {
     table: -1,
     seat: -1,
@@ -212,24 +119,9 @@ socket.on('logout', ({ uid }, sendFunc, oid) => {
   })
 })
 
+// serve production app on this port ('npm run build' to test)
+app.use(express.static(path.join(__dirname, '../build')))
 const web_server = app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 socket.init(web_server)
-
-
-// const addUser = () => {
-//   const newEntry = { ...emptySeat }
-//   newEntry.uid = socket.createOid()
-//   const spot = findSomeone(newEntry)
-//   console.log(spot)
-//   if (spot.table === -1 || spot.seat === -1) {
-//     console.log('out of room!')
-//     process.exit(0)
-//   }
-//   roomLayout[spot.table][spot.seat] = newEntry
-//   console.log(complexity)
-//   setTimeout(addUser, 100)
-// }
-
-// addUser()
