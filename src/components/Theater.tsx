@@ -33,6 +33,9 @@ const Theater: React.FC = () => {
         payload: req,
       })
     })
+    ws.on('room full', () => {
+      alert('Room full! Sorry')
+    })
     ws.init(() => {
       Firebase.auth().onAuthStateChanged((user) => {
         if (user) {

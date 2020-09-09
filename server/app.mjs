@@ -87,7 +87,7 @@ export const findSomeone = () => {
 socket.on('new-user', (user, resFunc) => {
   resFunc({
     action: 'load_room',
-    roomLayout: roomLayout
+    roomLayout: roomLayout,
   })
   const newParticipant = {
     displayName: user.displayName,
@@ -97,12 +97,21 @@ socket.on('new-user', (user, resFunc) => {
   }
   const spot = findSomeone(newParticipant)
   console.log(`Ran findSomeone with complexity of: ${complexity}`)
-  roomLayout[spot.table][spot.seat] = newParticipant
-  socket.broadcast({
-    action: 'new_user',
-    user: newParticipant,
-    ...spot
-  })
+  complexity = 0
+  if (spot.seat > -1) {
+    roomLayout[spot.table][spot.seat] = newParticipant
+    socket.broadcast({
+      action: 'new_user',
+      user: newParticipant,
+      ...spot,
+    })
+  } else {
+    console.log('Seats all full')
+    resFunc({
+      action: 'room full',
+    })
+  }
+
 })
 
 socket.on('logout', ({ uid }, sendFunc, oid) => {
