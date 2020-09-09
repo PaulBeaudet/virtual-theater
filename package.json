@@ -33,7 +33,7 @@
     "start": "react-scripts start",
     "start-server": "nodemon ./server/app.mjs",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "node ./server/app.test.mjs && react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -49,13 +49,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
-  },
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx.ts,tsx",
-      "server/**/*.{js,jsx.ts,tsx",
-      "!<rootDir/node_modules/"
     ]
   },
   "devDependencies": {
