@@ -20,8 +20,8 @@ export const emptySeat = {
   displayName: '',
   photoURL: '',
   uid: '',
-  email: '',
-  oid: ''
+  oid: '',
+  timeout: null,
 }
 
 // TEMP create room virtually in server memory
@@ -88,11 +88,11 @@ export const findSomeone = () => {
 }
 
 // helper function to locate user location
-const findSeat = (oid, action) => {
+const findSeat = (id, action, type) => {
   let found = false
   roomLayout.find((tables, tIdx) => {
     tables.find((seat, sIdx) => {
-      if (seat.oid === oid) {
+      if (seat[type] === id) {
         action(tIdx, sIdx)
         found = true
       }
@@ -100,6 +100,15 @@ const findSeat = (oid, action) => {
     })
     return found
   })
+  return found
+}
+
+const findSeatByOid = (oid, action) => {
+  return findSeat(oid, action, 'oid')
+}
+
+const findSeatByUid = (uid, action) => {
+  return findSeat(uid, action, 'uid')
 }
 
 // Seat reassignment when participant desires to move tables
@@ -112,7 +121,7 @@ export const switchTable = (oid, table) => {
   })
   if (openSeat > -1) {
     // find current position
-    findSeat(oid, (tableIdx, seatIdx) => {
+    findSeatByOid(oid, (tableIdx, seatIdx) => {
       // switch to new seat
       roomLayout[table][openSeat] = { ...roomLayout[tableIdx][seatIdx] }
       // vacate old seat
@@ -132,6 +141,8 @@ const roomWithoutOid = () => {
     return tables.map((seat) => {
       const sanitizedSeat = { ...seat }
       delete sanitizedSeat.oid
+      delete sanitizedSeat.uid
+      delete sanitizedSeat.timeout
       return sanitizedSeat
     })
   })
@@ -144,17 +155,25 @@ socket.on('new-user', (user, resFunc, oid) => {
     action: 'load_room',
     roomLayout: roomWithoutOid(),
   })
+  const found = findSeatByUid(user.uid, (table, seat) => {
+    // make sure user is kept in memory
+    clearTimeout(roomLayout[table][seat].timeout)
+    // update oid if this is just a reload
+    roomLayout[table][seat].oid = oid
+  })
+  // no need for seat finding logic if one is already assigned
+  if (found) { return }
+  delete user.action
   const newParticipant = {
-    displayName: user.displayName,
-    photoURL: user.photoURL,
-    uid: user.uid,
-    email: user.email,
-    oid: oid
+    ...user,
+    oid,
+    timeout: null,
   }
   const spot = findSomeone(newParticipant)
   if (spot.seat > -1) {
     roomLayout[spot.table][spot.seat] = { ...newParticipant }
     delete newParticipant.oid
+    // incrementally update all participants when new ones are added
     socket.broadcast({
       action: 'new_user',
       user: newParticipant,
@@ -186,15 +205,29 @@ socket.on('switch_table', ({ table }, sendFunc, oid) => {
 
 // API endpoint: participant logs out of application
 socket.on('logout', ({ uid }, sendFunc, oid) => {
-  findSeat(oid, (table, seat) => {
-    socket.broadcast({
-      action: 'remove_user',
-      // Only trust our uid associated with oid
-      uid: roomLayout[table][seat].uid,
-    }, oid)
+  findSeatByOid(oid, (table, seat) => {
     // vacate participant's seat
-    roomLayout[table][seat] = emptySeat
+    roomLayout[table][seat] = { ...emptySeat }
+    socket.broadcast({
+      action: 'load_room',
+      roomLayout: roomWithoutOid(),
+    }, oid)
   })
+})
+
+// API endpoint for when participant closes or reloads their browser window
+socket.on('unload', ({ uid }, sendFunc, oid) => {
+  findSeatByOid(oid, (table, seat) => {
+    roomLayout[table][seat].timeout = setTimeout(() => {
+      // vacate participant's seat
+      roomLayout[table][seat] = { ...emptySeat }
+      socket.broadcast({
+        action: 'load_room',
+        roomLayout: roomWithoutOid(),
+      }, oid)
+    }, 5000)
+  })
+
 })
 
 // serve production app on this port ('npm run build' to test)

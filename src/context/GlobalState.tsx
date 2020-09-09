@@ -1,14 +1,12 @@
 import React, { createContext, useReducer } from 'react'
 import AppReducer from './AppReducer'
-import { GlobalContextType } from '../interfaces'
+import { GlobalContextType, userType, personalType } from '../interfaces'
 import TableConfig from '../components/tableConfig.json'
 
 // initial state
-const defaultUser = {
+const defaultUser: userType = {
   displayName: '',
   photoURL: '',
-  uid: '',
-  email: '',
 }
 
 export const roomLayout = TableConfig.tables.map((table) => {
@@ -17,8 +15,13 @@ export const roomLayout = TableConfig.tables.map((table) => {
   })
 })
 
+const personalUser: personalType = {
+  ...defaultUser,
+  uid: '',
+}
+
 export const userState: GlobalContextType = {
-  loggedIn: defaultUser,
+  loggedIn: personalUser,
   participants: roomLayout,
 };
 

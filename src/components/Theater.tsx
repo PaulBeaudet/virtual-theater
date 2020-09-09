@@ -9,7 +9,7 @@ import Table from './table'
 import { ws } from 'apis'
 import Firebase from '../services/firebase'
 import { useHistory } from 'react-router-dom'
-import { userType } from 'interfaces'
+import { personalType } from 'interfaces'
 
 const Theater: React.FC = () => {
   const history = useHistory()
@@ -27,12 +27,6 @@ const Theater: React.FC = () => {
         payload: req.roomLayout,
       })
     })
-    ws.on('remove_user', (req: any) => {
-      dispatch({
-        type: 'REMOVE_USER',
-        payload: req,
-      })
-    })
     ws.on('room full', () => {
       alert('Room full! Sorry')
     })
@@ -42,17 +36,21 @@ const Theater: React.FC = () => {
     ws.init(() => {
       Firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          const addUserData: userType = {
+          const addUserData: personalType = {
             displayName: user.displayName,
             photoURL: user.photoURL,
             uid: user.uid,
-            email: user.email,
           }
           dispatch({
             type: 'SIGN_IN',
             payload: addUserData
           })
           ws.msg(`new-user`, addUserData)
+          window.addEventListener('beforeunload', () => {
+            ws.msg('unload', {
+              uid: user.uid
+            })
+          })
         } else {
           history.push('/')
         }
@@ -60,7 +58,7 @@ const Theater: React.FC = () => {
     })
   }, [dispatch, history])
 
-  if (state.loggedIn === null) { return null; }
+  if (state.loggedIn === null) { return null }
   return (
     <div className='remo-theater' style={{
       width: TableConfig.width, height: TableConfig.height

@@ -9,7 +9,6 @@ export default (state: GlobalContextType, action: reducerActionType) => {
         displayName: action.payload.displayName,
         photoURL: action.payload.photoURL,
         uid: action.payload.uid,
-        email: action.payload.email,
       },
     }
   } else if (action.type === "SIGN_OUT") {
@@ -29,16 +28,6 @@ export default (state: GlobalContextType, action: reducerActionType) => {
     return {
       ...state,
       participants: newParticipants,
-    }
-  } else if (action.type === "REMOVE_USER") {
-    const newRoom = state.participants.map(tables => {
-      return tables.filter((seat) => {
-        return seat.uid !== action.payload.uid
-      })
-    })
-    return {
-      ...state,
-      participants: newRoom,
     }
   } else {
     return state;

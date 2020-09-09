@@ -6,12 +6,14 @@ export interface reducerActionType {
 export interface userType {
   displayName: string | null
   photoURL: string | null
+}
+
+export interface personalType extends userType {
   uid: string | null
-  email: string | null
 }
 
 export interface GlobalContextType {
-  loggedIn: userType
+  loggedIn: personalType
   participants: userType[][]
 }
 
