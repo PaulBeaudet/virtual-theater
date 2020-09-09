@@ -72,7 +72,7 @@ const socket = {
     action: 'msg',
     func: function (req) { console.log(req.msg) }
   }],
-  incoming: (event, sendFunc) => {
+  incoming: (event, sendFunc, oid) => {
     let req = { action: null }
     // if error we don't care there is a default object
     try {
@@ -82,7 +82,7 @@ const socket = {
     }
     for (let h = 0; h < socket.handlers.length; h++) {
       if (req.action === socket.handlers[h].action) {
-        socket.handlers[h].func(req, sendFunc)
+        socket.handlers[h].func(req, sendFunc, oid)
         return
       }
     }

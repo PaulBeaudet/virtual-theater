@@ -36,6 +36,9 @@ const Theater: React.FC = () => {
     ws.on('room full', () => {
       alert('Room full! Sorry')
     })
+    ws.on('table_taken', () => {
+      alert('Table taken! Sorry')
+    })
     ws.init(() => {
       Firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -67,7 +70,6 @@ const Theater: React.FC = () => {
         <User />
       </div>
       <div className='rt-rooms'>
-
         {TableConfig.tables.map((tableObj, tableIndex) => {
           return (<Table key={tableObj.id} tableObj={tableObj} tableNumber={tableIndex} />)
         })}
