@@ -1,12 +1,14 @@
-import React, { useContext } from 'react';
-import Firebase from '../services/firebase';
-import { GlobalUserContext, userState, personalUser } from 'context/GlobalState';
-import { ws } from '../apis';
-import { useHistory } from 'react-router-dom';
+import React, { useContext } from 'react'
+import Firebase from '../services/firebase'
+import { GlobalUserContext, userState, personalUser } from 'context/GlobalState'
+import { ws } from '../apis'
+import { useHistory } from 'react-router-dom'
+import MaxAllowedDropdown from 'components/MaxAllowedDropdown'
 
 const SignOut: React.FC = () => {
   const { state, dispatch } = useContext(GlobalUserContext)
   const history = useHistory()
+  const { displayName } = state.loggedIn
 
   const logoutFunc = () => {
     Firebase.auth().signOut()
@@ -46,8 +48,8 @@ const SignOut: React.FC = () => {
       highlightBlink()
     } // button only works at zero flashes
   }
+
   if (state.loggedIn === null) { return null } // hide component when logged out
-  const { displayName } = state.loggedIn
   return (
     <div style={{
       width: '300px',
@@ -58,7 +60,7 @@ const SignOut: React.FC = () => {
       textAlign: 'center'
     }}
     >
-      <h1> Virtual Theater </h1>
+      <h2> Virtual Theater </h2>
       {displayName && <p>Logged in as {displayName}</p>}
       <button onClick={logoutFunc}>
         Logout
@@ -66,8 +68,9 @@ const SignOut: React.FC = () => {
       <button onClick={triggerHighlightBlink}>
         Where am I?
       </button>
+      <MaxAllowedDropdown />
     </div>
-  );
-};
+  )
+}
 
-export default SignOut;
+export default SignOut

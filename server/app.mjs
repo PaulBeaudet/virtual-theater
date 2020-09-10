@@ -182,6 +182,8 @@ socket.on('new-user', (user, resFunc, oid) => {
   const spot = findSomeone(newParticipant)
   if (spot.seat > -1) {
     roomLayout[spot.table][spot.seat] = { ...newParticipant }
+    delete newParticipant.uid
+    delete newParticipant.table
     delete newParticipant.oid
     delete newParticipant.timeout
     // update the requester for self awareness purposes
@@ -248,6 +250,27 @@ socket.on('unload', ({ uid }, sendFunc, oid) => {
         roomLayout: roomWithoutOid(),
       }, oid)
     }, 5000)
+  })
+})
+
+socket.on('GIMME_FAKES', ({ table, max }, sendFunc, oid) => {
+  let fakesToPlace = max
+  console.log(`trying to place ${max} fakes`)
+  for (let seat = 0; seat < 6; seat++) {
+    if (roomLayout[table][seat].oid === '' || roomLayout[table][seat].oid === 'erm') {
+      if (fakesToPlace > 0) {
+        roomLayout[table][seat].displayName = 'erm'
+        roomLayout[table][seat].oid = 'erm'
+        fakesToPlace--
+      } else {
+        roomLayout[table][seat].displayName = ''
+        roomLayout[table][seat].oid = ''
+      }
+    }
+  }
+  sendFunc({
+    action: 'LOAD_ROOM',
+    roomLayout: roomWithoutOid(),
   })
 
 })
