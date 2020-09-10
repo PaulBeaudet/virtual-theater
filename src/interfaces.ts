@@ -10,6 +10,9 @@ export interface userType {
 
 export interface personalType extends userType {
   uid: string | null
+  highlight: string | null
+  table: number | null
+  seat: number | null
 }
 
 export interface GlobalContextType {

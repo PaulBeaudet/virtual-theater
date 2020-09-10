@@ -4,7 +4,7 @@ import { GlobalContextType, userType, personalType } from '../interfaces'
 import TableConfig from '../components/tableConfig.json'
 
 // initial state
-const defaultUser: userType = {
+export const defaultUser: userType = {
   displayName: '',
   photoURL: '',
 }
@@ -15,9 +15,12 @@ export const roomLayout = TableConfig.tables.map((table) => {
   })
 })
 
-const personalUser: personalType = {
+export const personalUser: personalType = {
   ...defaultUser,
   uid: '',
+  highlight: 'red',
+  table: null,
+  seat: null,
 }
 
 export const userState: GlobalContextType = {

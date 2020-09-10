@@ -152,7 +152,7 @@ const roomWithoutOid = () => {
 socket.on('new-user', (user, resFunc, oid) => {
   // give this participant details of current layout
   resFunc({
-    action: 'load_room',
+    action: 'LOAD_ROOM',
     roomLayout: roomWithoutOid(),
   })
   const found = findSeatByUid(user.uid, (table, seat) => {
@@ -160,6 +160,16 @@ socket.on('new-user', (user, resFunc, oid) => {
     clearTimeout(roomLayout[table][seat].timeout)
     // update oid if this is just a reload
     roomLayout[table][seat].oid = oid
+    // remind user who they are
+    resFunc({
+      action: 'ADD_SELF',
+      user: {
+        displayName: roomLayout[table][seat].displayName,
+        photoURL: roomLayout[table][seat].photoURL
+      },
+      table,
+      seat,
+    })
   })
   // no need for seat finding logic if one is already assigned
   if (found) { return }
@@ -173,15 +183,22 @@ socket.on('new-user', (user, resFunc, oid) => {
   if (spot.seat > -1) {
     roomLayout[spot.table][spot.seat] = { ...newParticipant }
     delete newParticipant.oid
-    // incrementally update all participants when new ones are added
-    socket.broadcast({
-      action: 'new_user',
+    delete newParticipant.timeout
+    // update the requester for self awareness purposes
+    resFunc({
+      action: 'ADD_SELF',
       user: newParticipant,
       ...spot,
     })
+    // incrementally update all participants when new ones are added
+    socket.broadcast({
+      action: 'ADD_USER',
+      user: newParticipant,
+      ...spot,
+    }, oid) // NOTE: caller is ignored by passing oid
   } else {
     resFunc({
-      action: 'room full',
+      action: 'ROOM_FULL',
     })
   }
 })
@@ -190,15 +207,20 @@ socket.on('new-user', (user, resFunc, oid) => {
 socket.on('switch_table', ({ table }, sendFunc, oid) => {
   const potentialSeat = switchTable(oid, table)
   if (potentialSeat > -1) {
+    sendFunc({
+      action: "UPDATE_SELF",
+      table,
+      seat: potentialSeat
+    })
     // brute force have everyone reload the room for change
     socket.broadcast({
-      action: 'load_room',
+      action: 'LOAD_ROOM',
       roomLayout: roomWithoutOid(),
-    })
+    }, oid)
   } else {
     // tell user table is full
     sendFunc({
-      action: 'table_taken',
+      action: 'TABLE_TAKEN',
     })
   }
 })
@@ -209,7 +231,7 @@ socket.on('logout', ({ uid }, sendFunc, oid) => {
     // vacate participant's seat
     roomLayout[table][seat] = { ...emptySeat }
     socket.broadcast({
-      action: 'load_room',
+      action: 'LOAD_ROOM',
       roomLayout: roomWithoutOid(),
     }, oid)
   })
@@ -222,7 +244,7 @@ socket.on('unload', ({ uid }, sendFunc, oid) => {
       // vacate participant's seat
       roomLayout[table][seat] = { ...emptySeat }
       socket.broadcast({
-        action: 'load_room',
+        action: 'LOAD_ROOM',
         roomLayout: roomWithoutOid(),
       }, oid)
     }, 5000)

@@ -3,7 +3,7 @@ import './Theater.scss'
 import MapImage from '../assets/conference-map.svg'
 import TableConfig from './tableConfig.json'
 import SignOut from 'modules/Logout'
-import { GlobalUserContext } from 'context/GlobalState'
+import { GlobalUserContext, personalUser } from 'context/GlobalState'
 import Table from './table'
 import { ws } from 'apis'
 import Firebase from '../services/firebase'
@@ -15,30 +15,45 @@ const Theater: React.FC = () => {
   const { state, dispatch } = useContext(GlobalUserContext)
   useEffect(() => {
     // signal server sends to update one user
-    ws.on('new_user', (req: any) => {
+    ws.on('ADD_USER', (payload: any) => {
       dispatch({
         type: 'ADD_USER',
-        payload: req,
+        payload,
       })
     })
     // Signal server sends to completely refresh meeple positions
-    ws.on('load_room', (req: any) => {
+    ws.on('LOAD_ROOM', (req: any) => {
       dispatch({
         type: 'LOAD_ROOM',
         payload: req.roomLayout,
       })
     })
+    // Signal server sends for user to have self awareness
+    // Load yourself as a new user at the same it like ADD_USER
+    ws.on('ADD_SELF', (payload: any) => {
+      dispatch({
+        type: 'ADD_SELF',
+        payload,
+      })
+    })
+    ws.on('UPDATE_SELF', (payload: any) => {
+      dispatch({
+        type: 'UPDATE_SELF',
+        payload,
+      })
+    })
     // Signal server sends when all spots are taken
-    ws.on('room full', () => {
+    ws.on('ROOM_FULL', () => {
       alert('Room full! Sorry')
     })
     // signal server sends when a table is taken
-    ws.on('table_taken', () => {
+    ws.on('TABLE_TAKEN', () => {
       alert('Table taken! Sorry')
     })
     Firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         const addUserData: personalType = {
+          ...personalUser,
           displayName: user.displayName,
           photoURL: user.photoURL,
           uid: user.uid,
@@ -50,6 +65,8 @@ const Theater: React.FC = () => {
         })
         // make connection to WebSocket server
         ws.init(() => {
+          delete addUserData.seat
+          delete addUserData.highlight
           ws.msg(`new-user`, addUserData)
         })
         // Provide a signal for server to know when user disconnects
