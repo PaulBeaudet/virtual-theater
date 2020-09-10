@@ -1,5 +1,6 @@
 import React, { useEffect, useContext } from 'react';
-import Firebase from '../services/firebase';
+import Firebase, { uiConfig } from '../services/firebase';
+import { StyledFirebaseAuth } from 'react-firebaseui'
 import { useHistory } from 'react-router-dom';
 import { GlobalUserContext } from '../context/GlobalState';
 
@@ -15,10 +16,6 @@ const Auth: React.FC = () => {
       }
     });
   }, [history, dispatch]);
-  const redirect = () => {
-    const provider = new Firebase.auth.GoogleAuthProvider();
-    Firebase.auth().signInWithPopup(provider);
-  };
 
   return (
     <div
@@ -30,8 +27,9 @@ const Auth: React.FC = () => {
         alignItems: 'center'
       }}
     >
-      <h1> Remo Coding Challenge Join Room </h1>
-      <button onClick={redirect}> Login With Google </button>
+      <h1> Virtual conference demo </h1>
+      <p>Join Room</p>
+      <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={Firebase.auth()} />
     </div>
   );
 };

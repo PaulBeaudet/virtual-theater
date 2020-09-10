@@ -31,7 +31,8 @@ const SignOut: React.FC = () => {
       textAlign: 'center'
     }}
     >
-      <h1> Remo Ludo </h1>
+      <h3> Virtual Theater </h3>
+      <p>Logged in as {state.loggedIn.displayName}</p>
       <button onClick={logoutFunc}>
         Logout
       </button>
