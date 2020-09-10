@@ -3,7 +3,6 @@ import './Theater.scss'
 import MapImage from '../assets/conference-map.svg'
 import TableConfig from './tableConfig.json'
 import SignOut from 'modules/Logout'
-import User from 'modules/User'
 import { GlobalUserContext } from 'context/GlobalState'
 import Table from './table'
 import { ws } from 'apis'
@@ -73,7 +72,6 @@ const Theater: React.FC = () => {
     }}>
       <div className='rt-app-bar'>
         <SignOut />
-        <User />
       </div>
       <div className='rt-rooms'>
         {TableConfig.tables.map((tableObj, tableIndex) => {
