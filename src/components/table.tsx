@@ -11,7 +11,7 @@ const Table: React.FC<tableProps> = ({ tableObj, tableNumber }) => {
   }
   return (
     <div className='rt-room'
-      onClick={tableSelection}
+      onDoubleClick={tableSelection}
       style={{
         width: tableObj.width,
         height: tableObj.height,
