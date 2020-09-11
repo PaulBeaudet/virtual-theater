@@ -73,7 +73,7 @@ export const findSomeone = () => {
   for (let table = 0; table < roomLayout.length; table++) {
     let peeps = 0
     for (let seat in roomLayout[table]) {
-      if (roomLayout[table][seat].oid !== '') {
+      if (roomLayout[table][seat].oid !== 'BLOCKED' && roomLayout[table][seat].oid !== '') {
         peeps++
       }
     }
@@ -253,26 +253,56 @@ socket.on('unload', ({ uid }, sendFunc, oid) => {
   })
 })
 
-socket.on('GIMME_FAKES', ({ table, max }, sendFunc, oid) => {
-  let fakesToPlace = max
-  console.log(`trying to place ${max} fakes`)
-  for (let seat = 0; seat < 6; seat++) {
-    if (roomLayout[table][seat].oid === '' || roomLayout[table][seat].oid === 'erm') {
-      if (fakesToPlace > 0) {
-        roomLayout[table][seat].displayName = 'erm'
-        roomLayout[table][seat].oid = 'erm'
-        fakesToPlace--
-      } else {
-        roomLayout[table][seat].displayName = ''
-        roomLayout[table][seat].oid = ''
+socket.on('TABLE_MAX', ({ table, max }, sendFunc, oid) => {
+  let currentBlocked = 0
+  roomLayout[table].forEach(seat => {
+    if (seat.oid === 'BLOCKED') { currentBlocked++ }
+  })
+  // figure how many seats need to be removed to meet max
+  let seatsToRemove = SEATS - max
+  let seatsToAdd = SEATS - max
+  if (currentBlocked > seatsToRemove) {
+    seatsToAdd = currentBlocked - seatsToAdd
+    seatsToRemove = 0
+  } else {
+    seatsToRemove = seatsToAdd - currentBlocked
+    seatsToAdd = 0
+  }
+  // Come up with a table arrangement without those seats
+  const newArrangement = roomLayout[table].map((seat) => {
+    if (seatsToAdd) {
+      if (seat.oid === 'BLOCKED') {
+        if (seatsToAdd > 0) {
+          seat.oid = ''
+          seat.displayName = ''
+          seatsToAdd--
+        }
+      }
+    } else {
+      if (seat.oid === 'BLOCKED') {
+        if (seatsToRemove > 0) {
+          seatsToRemove--
+        }
+      } else if (seat.oid === '') {
+        if (seatsToRemove > 0) {
+          seat.oid = 'BLOCKED'
+          seat.displayName = 'BLOCKED'
+          seatsToRemove--
+        }
       }
     }
+    return seat
+  })
+  // ignore non-sense request
+  if (seatsToRemove > 0 || seatsToAdd > 0) {
+    console.log(`Still had ${seatsToRemove} to remove & ${seatsToAdd} to add`)
+    return
   }
-  sendFunc({
+  roomLayout[table] = newArrangement
+  socket.broadcast({
     action: 'LOAD_ROOM',
     roomLayout: roomWithoutOid(),
   })
-
 })
 
 // serve production app on this port ('npm run build' to test)
