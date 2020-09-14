@@ -19,10 +19,13 @@ import bodyParser from 'body-parser'
 import path from 'path'
 import socket from './socket.mjs'
 
-const app = express();
-const port = 8000;
-const TABLES = 19;
-const SEATS = 6;
+const app = express()
+let port = process.env.PORT
+if (port === null || port === "") {
+  port = 8000;
+}
+const TABLES = 19
+const SEATS = 6
 const moduleURL = new URL(import.meta.url)
 const __dirname = path.dirname(moduleURL.pathname)
 
