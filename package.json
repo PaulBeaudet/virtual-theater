@@ -1,6 +1,6 @@
 {
   "name": "virtual-theater",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "dependencies": {
     "@types/cors": "^2.8.7",
