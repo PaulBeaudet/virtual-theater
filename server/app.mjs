@@ -139,23 +139,23 @@ export const switchTable = (oid, table) => {
 const roomWithoutOid = () => {
   return roomLayout.map((tables) => {
     return tables.map((seat) => {
-      const sanitizedSeat = { ...seat }
-      delete sanitizedSeat.oid
-      delete sanitizedSeat.uid
-      delete sanitizedSeat.timeout
-      return sanitizedSeat
+      const { displayName, photoURL } = seat
+      return {
+        displayName,
+        photoURL,
+      }
     })
   })
 } // This might be expensive but it protects us from ourselves
 
 // API endpoint: participant enters room
-socket.on('new-user', (user, resFunc, oid) => {
+socket.on('new-user', ({ uid, displayName, photoURL }, resFunc, oid) => {
   // give this participant details of current layout
   resFunc({
     action: 'LOAD_ROOM',
     roomLayout: roomWithoutOid(),
   })
-  const found = findSeatByUid(user.uid, (table, seat) => {
+  const found = findSeatByUid(uid, (table, seat) => {
     // make sure user is kept in memory
     clearTimeout(roomLayout[table][seat].timeout)
     // update oid if this is just a reload
@@ -173,29 +173,29 @@ socket.on('new-user', (user, resFunc, oid) => {
   })
   // no need for seat finding logic if one is already assigned
   if (found) { return }
-  delete user.action
-  const newParticipant = {
-    ...user,
-    oid,
-    timeout: null,
-  }
-  const spot = findSomeone(newParticipant)
+  const spot = findSomeone()
   if (spot.seat > -1) {
-    roomLayout[spot.table][spot.seat] = { ...newParticipant }
-    delete newParticipant.uid
-    delete newParticipant.table
-    delete newParticipant.oid
-    delete newParticipant.timeout
+    roomLayout[spot.table][spot.seat] = {
+      uid,
+      oid,
+      displayName,
+      photoURL,
+      timeout: null
+    }
+    const user = {
+      displayName,
+      photoURL,
+    }
     // update the requester for self awareness purposes
     resFunc({
       action: 'ADD_SELF',
-      user: newParticipant,
+      user,
       ...spot,
     })
     // incrementally update all participants when new ones are added
     socket.broadcast({
       action: 'ADD_USER',
-      user: newParticipant,
+      user,
       ...spot,
     }, oid) // NOTE: caller is ignored by passing oid
   } else {

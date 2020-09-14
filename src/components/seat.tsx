@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import { seatProps } from '../interfaces'
 import { GlobalUserContext } from 'context/GlobalState'
 
+// Component for individual spots that meeples/avatars are placed in
 const Seat: React.FC<seatProps> = ({ seatObj, tableNumber, seatNumber }) => {
   const { state } = useContext(GlobalUserContext)
   const { table, seat, highlight } = state.loggedIn

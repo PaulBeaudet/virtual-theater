@@ -1,10 +1,13 @@
 import React, { useContext } from 'react'
 import Firebase from '../services/firebase'
 import { GlobalUserContext, userState, personalUser } from 'context/GlobalState'
-import { ws } from '../apis'
+import { ws } from '../apis/WebSocket'
 import { useHistory } from 'react-router-dom'
 import MaxAllowedDropdown from 'components/MaxAllowedDropdown'
 
+// Dialog in presentation window of theater: ATM
+// TODO: Should be broken out into separate components
+// Parent Presentation1 | Children [logout, findMe, maxAllowedDropdown]
 const SignOut: React.FC = () => {
   const { state, dispatch } = useContext(GlobalUserContext)
   const history = useHistory()
@@ -22,6 +25,7 @@ const SignOut: React.FC = () => {
     });
   }
 
+  // Event for finding one's own meeple
   const numberOfFlashes = 10
   let flashes = 0
   const highlightBlink = () => {
@@ -43,13 +47,16 @@ const SignOut: React.FC = () => {
     })
   }
 
+  // trigger of find meeple event that should filter redundant request
+  // TODO: some redundant request still need to be filtered
   const triggerHighlightBlink = () => {
     if (!flashes) {
       highlightBlink()
     } // button only works at zero flashes
   }
 
-  if (state.loggedIn === null) { return null } // hide component when logged out
+  // hide component when logged out
+  if (state.loggedIn === null) { return null }
   return (
     <div style={{
       width: '300px',

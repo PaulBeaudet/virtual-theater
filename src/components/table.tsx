@@ -1,9 +1,11 @@
 import React from 'react'
 import { tableProps } from '../interfaces'
 import Seat from './seat'
-import { ws } from '../apis/index'
+import { ws } from '../apis/WebSocket'
 
+// Component for tables within a virtual conference room
 const Table: React.FC<tableProps> = ({ tableObj, tableNumber }) => {
+  // Selection event for changing tables on double click
   const tableSelection = () => {
     ws.msg('switch_table', {
       table: tableNumber,

@@ -5,11 +5,12 @@ import TableConfig from './tableConfig.json'
 import SignOut from 'modules/Logout'
 import { GlobalUserContext, personalUser } from 'context/GlobalState'
 import Table from './table'
-import { ws } from 'apis'
+import { ws } from 'apis/WebSocket'
 import Firebase from '../services/firebase'
 import { useHistory } from 'react-router-dom'
 import { personalType } from 'interfaces'
 
+// Parent component of virtual conference room
 const Theater: React.FC = () => {
   const history = useHistory()
   const { state, dispatch } = useContext(GlobalUserContext)
@@ -36,6 +37,7 @@ const Theater: React.FC = () => {
         payload,
       })
     })
+    // Signal server sends to switch a seat
     ws.on('UPDATE_SELF', (payload: any) => {
       dispatch({
         type: 'UPDATE_SELF',
@@ -52,11 +54,12 @@ const Theater: React.FC = () => {
     })
     Firebase.auth().onAuthStateChanged((user) => {
       if (user) {
+        const { uid, photoURL, displayName } = user
         const addUserData: personalType = {
           ...personalUser,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          uid: user.uid,
+          displayName,
+          photoURL,
+          uid,
         }
         // Populate local user logged in info
         dispatch({
@@ -65,15 +68,15 @@ const Theater: React.FC = () => {
         })
         // make connection to WebSocket server
         ws.init(() => {
-          delete addUserData.seat
-          delete addUserData.highlight
-          ws.msg(`new-user`, addUserData)
+          ws.msg(`new-user`, {
+            displayName,
+            photoURL,
+            uid,
+          })
         })
         // Provide a signal for server to know when user disconnects
         window.addEventListener('beforeunload', () => {
-          ws.msg('unload', {
-            uid: user.uid
-          })
+          ws.msg('unload', { uid })
         })
       } else { // given no user show auth route
         history.push('/')

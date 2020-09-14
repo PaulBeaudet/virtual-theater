@@ -3,6 +3,7 @@ import { roomLayout, defaultUser } from "./GlobalState"
 
 export default (state: GlobalContextType, action: reducerActionType) => {
   if (action.type === 'SIGN_IN') {
+    // add user data when logged in
     return {
       ...state,
       loggedIn: {
@@ -10,16 +11,19 @@ export default (state: GlobalContextType, action: reducerActionType) => {
       },
     }
   } else if (action.type === 'SIGN_OUT') {
+    // remove user data when logged
     return {
       loggedIn: {},
       participants: roomLayout
     }
   } else if (action.type === 'LOAD_ROOM') {
+    // full inplace 2d array update. Lazy expensive way to mutate
     return {
       ...state,
       participants: action.payload,
     }
   } else if (action.type === 'ADD_USER') {
+    // As time goes by additions of joining participants
     const { seat, table, user } = action.payload
     const newParticipants = [...state.participants]
     newParticipants[table][seat] = user
@@ -28,6 +32,7 @@ export default (state: GlobalContextType, action: reducerActionType) => {
       participants: newParticipants,
     }
   } else if (action.type === 'ADD_SELF') {
+    // Used when initially joining table
     const { seat, table, user } = action.payload
     const newParticipants = [...state.participants]
     newParticipants[table][seat] = user
@@ -42,6 +47,7 @@ export default (state: GlobalContextType, action: reducerActionType) => {
       participants: newParticipants,
     }
   } else if (action.type === 'UPDATE_SELF') {
+    // Switches seat without loading the whole 2d array
     const { table, seat } = action.payload
     const participants = [...state.participants]
     const loggedIn = { ...state.loggedIn }
@@ -60,6 +66,7 @@ export default (state: GlobalContextType, action: reducerActionType) => {
       loggedIn,
     }
   } else if (action.type === 'HIGHLIGHT') {
+    // For animating user's meeple
     return {
       ...state,
       loggedIn: {
