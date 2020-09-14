@@ -20,10 +20,7 @@ import path from 'path'
 import socket from './socket.mjs'
 
 const app = express()
-let port = process.env.PORT
-if (port === null || port === "") {
-  port = 8000;
-}
+let port = process.env.PORT ? process.env.PORT : 8000
 const TABLES = 19
 const SEATS = 6
 const moduleURL = new URL(import.meta.url)

@@ -2,6 +2,10 @@
   "name": "virtual-theater",
   "version": "0.1.4",
   "private": true,
+  "engines": {
+    "node": "12.18.3",
+    "npm": "6.14.8"
+  },
   "dependencies": {
     "@types/cors": "^2.8.7",
     "@types/jest": "^26.0.0",
@@ -29,7 +33,8 @@
     "ws": "^7.3.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts build && node ./server/app.mjs",
+    "start-react": "react-scripts start",
     "start-server": "nodemon ./server/app.mjs",
     "build": "react-scripts build",
     "test": "node ./server/app.test.mjs && react-scripts test",
