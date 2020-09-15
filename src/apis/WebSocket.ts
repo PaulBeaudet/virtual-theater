@@ -18,7 +18,7 @@ import { wsType } from "interfaces"
 
 export const ws: wsType = {
   instance: null,
-  server: 'ws://localhost:8000',
+  server: 'wss://virtual-theater.herokuapp.com/',// 'ws://localhost:8000',
   init: (onConnection: () => void) => {
     if (ws.instance) {
       // makes it so that init function can be called l
