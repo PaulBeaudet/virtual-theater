@@ -4,3 +4,5 @@ build/
 .vscode
 coverage/
 personal.sh
+disableDist.json
+deleteDnsRecord.json
